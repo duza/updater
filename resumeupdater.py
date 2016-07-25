@@ -2,6 +2,17 @@ import requests
 from lxml import html
 
 def upresume(login, paswd, resume_name):
+    ''' Do a update resume in jobs.tut.by
+        upresume(login, password, resume_name) ->
+            tuple(request.status_code, page.content)
+        Function accept three arguments: user's login and
+        password, name of the own resume on jobs.tut.by.
+        It search the specified page of resume and try
+        update it.
+        Function returns tuple: the status code after
+        try to update resume and content of page after 
+        its try''' 
+        
     with requests.Session() as c:
         url = 'https://jobs.tut.by/account/login'
         headers = {'Referer': 'https://jobs.tut.by/account/login',\
