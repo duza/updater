@@ -40,7 +40,7 @@ def upresume(login, paswd, resume_name):
         all_links = tree.xpath('//a[@href]')
         for link in all_links:
             try:
-                if link.text == resume_name:
+                if resume_name in html.tostring(link):
                     resume_link = link
             except Exception as err:
                  raise err
