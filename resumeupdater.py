@@ -14,8 +14,8 @@ def upresume(login, paswd, resume_name):
         its try''' 
         
     with requests.Session() as c:
-        url = 'https://jobs.tut.by/account/login'
-        headers = {'Referer': 'https://jobs.tut.by/account/login',\
+        url = 'https://jobs.tut.by/account/login?backurl=%2F'
+        headers = {'Upgrade-Insecure-Requests':'1',\
     'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',\
     'Host':'jobs.tut.by',\
     'Accept-Encoding':'gzip, deflate, br',\
@@ -29,12 +29,13 @@ def upresume(login, paswd, resume_name):
         login_data = dict(username=login,\
     password=paswd,\
     backUrl='https://jobs.tut.by/',\
-    failUrl='/account/login?backurl=%2F&role=',\
+    failUrl='/account/login?backurl=%2F',\
     _xsrf=token
     )
-        c.post(url, data=login_data, headers=headers)
-        c.get('https://jobs.tut.by/account/login')
-        page = c.get('https://jobs.tut.by/applicant/resumes')
+        headers.update({'Referer':'https://jobs.tut.by/account/login?backurl=%2F'})
+        c.post(url, data=login_data, headers=headers)      
+        c.get('https://jobs.tut.by/',headers=headers)
+        page = c.get('https://jobs.tut.by/applicant/resumes',headers=headers)
         page.encoding = "utf-8"
         tree = html.fromstring(page.content)
         all_links = tree.xpath('//a[@href]')
@@ -46,7 +47,7 @@ def upresume(login, paswd, resume_name):
                  raise err
         url = 'https://jobs.tut.by' + resume_link.attrib['href']
         id_resume = url.split('/')[-1]
-        c.get(url)
+        c.get(url,headers=headers)
         params_data = {'resume': id_resume, 'undirectable':'true'}
         url_update = 'https://jobs.tut.by/applicant/resumes/touch'
         changes = {
@@ -59,5 +60,5 @@ def upresume(login, paswd, resume_name):
     }
         headers.update(changes)
         r = c.post(url=url_update, data=params_data, headers=headers)
-        page = c.get(url)
+        page = c.get(url,headers=headers)
         return r.status_code, page.content
